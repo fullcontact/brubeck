@@ -240,27 +240,35 @@ int brubeck_statsd_msg_parse(struct brubeck_statsd_msg *msg, char *buffer, size_
 			return 0;
 		}
 
-		if(*buffer == '@') {
+		if (*buffer == '|') {
 			++buffer;
-			while (*buffer >= '0' && *buffer <= '9') {
-				msg->sample_rate = (msg->sample_rate * 10.0) + (*buffer - '0');
-				++buffer;
-			}
 
-			if (*buffer == '.') {
-				double f = 0.0, n = 0.0;
-				++buffer;
+			msg->sample_rate = 0.0;
 
+			if (*buffer == '@') {
+				++buffer;
 				while (*buffer >= '0' && *buffer <= '9') {
-					f = (f * 10.0) + (*buffer - '0');
+					msg->sample_rate = (msg->sample_rate * 10.0) + (*buffer - '0');
 					++buffer;
-					n += 1.0;
 				}
 
-				msg->sample_rate += f / pow(10.0, n);
-			}
+				if (*buffer == '.') {
+					double f = 0.0, n = 0.0;
+					++buffer;
 
-			return 0;
+					while (*buffer >= '0' && *buffer <= '9') {
+						f = (f * 10.0) + (*buffer - '0');
+						++buffer;
+						n += 1.0;
+					}
+
+					msg->sample_rate += f / pow(10.0, n);
+				}
+
+				if (msg->sample_rate > 0.0) {
+					return 0;
+				}
+			}
 		}
 	}
 	/**
