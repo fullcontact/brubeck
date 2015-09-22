@@ -189,11 +189,11 @@ histogram__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void 
 		sample(key, hsample.mean, opaque);
 	}
 
-	WITH_SUFFIX(".count") {
+	WITH_SUFFIX(".tcount") {
 		sample(key, hsample.count, opaque);
 	}
 
-	WITH_SUFFIX(".rate") {
+	WITH_SUFFIX(".trate") {
 		// TODO(xorlev): actual sample rate
 		sample(key, hsample.count/10, opaque);
 	}
