@@ -22,17 +22,18 @@ new_metric(struct brubeck_server *server, const char *key, size_t key_len, uint8
 	return metric;
 }
 
-typedef void (*mt_prototype_record)(struct brubeck_metric *, value_t);
+typedef void (*mt_prototype_record)(struct brubeck_metric *, value_t, float);
 typedef void (*mt_prototype_sample)(struct brubeck_metric *, brubeck_sample_cb, void *);
 
 
 /*********************************************
+ :
  * Gauge
  *
  * ALLOC: mt + 4 bytes
  *********************************************/
 static void
-gauge__record(struct brubeck_metric *metric, value_t value)
+gauge__record(struct brubeck_metric *metric, value_t value, float sample_rate)
 {
 	pthread_spin_lock(&metric->lock);
 	{
@@ -62,11 +63,11 @@ gauge__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opa
  * ALLOC: mt + 4
  *********************************************/
 static void
-meter__record(struct brubeck_metric *metric, value_t value)
+meter__record(struct brubeck_metric *metric, value_t value, float sample_rate)
 {
 	pthread_spin_lock(&metric->lock);
 	{
-		metric->as.meter.value += value;
+		metric->as.meter.value += value/sample_rate;
 	}
 	pthread_spin_unlock(&metric->lock);
 }
@@ -75,6 +76,7 @@ static void
 meter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opaque)
 {
 	value_t value;
+	char *key;
 
 	pthread_spin_lock(&metric->lock);
 	{
@@ -83,7 +85,19 @@ meter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opa
 	}
 	pthread_spin_unlock(&metric->lock);
 
-	sample(metric->key, value, opaque);
+	key = alloca(metric->key_len + strlen(".count") + 1);
+	memcpy(key, metric->key, metric->key_len);
+
+
+	WITH_SUFFIX(".count") {
+		sample(key, value, opaque);
+	}
+
+	WITH_SUFFIX(".rate") {
+		// TODO(xorlev): sample rate
+		sample(key, value/10, opaque);
+	}
+
 }
 
 
@@ -178,6 +192,12 @@ histogram__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void 
 	WITH_SUFFIX(".count") {
 		sample(key, hsample.count, opaque);
 	}
+
+	WITH_SUFFIX(".rate") {
+		// TODO(xorlev): actual sample rate
+		sample(key, hsample.count/10, opaque);
+	}
+
 
 	WITH_SUFFIX(".median") {
 		sample(key, hsample.median, opaque);
