@@ -107,7 +107,7 @@ meter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opa
  * ALLOC: mt + 4 + 4 + 4
  *********************************************/
 static void
-counter__record(struct brubeck_metric *metric, value_t value)
+counter__record(struct brubeck_metric *metric, value_t value, float sample_rate)
 {
 	pthread_spin_lock(&metric->lock);
 	{
@@ -146,7 +146,7 @@ counter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *o
  * ALLOC: mt + 16 + 4
  *********************************************/
 static void
-histogram__record(struct brubeck_metric *metric, value_t value)
+histogram__record(struct brubeck_metric *metric, value_t value, float sample_rate)
 {
 	pthread_spin_lock(&metric->lock);
 	{
@@ -269,12 +269,13 @@ static struct brubeck_metric__proto {
 
 void brubeck_metric_sample(struct brubeck_metric *metric, brubeck_sample_cb cb, void *backend)
 {
+	// TODO(xorlev): sample rate here
 	_prototypes[metric->type].sample(metric, cb, backend);
 }
 
-void brubeck_metric_record(struct brubeck_metric *metric, value_t value)
+void brubeck_metric_record(struct brubeck_metric *metric, value_t value, float sample_rate)
 {
-	_prototypes[metric->type].record(metric, value);
+	_prototypes[metric->type].record(metric, value, sample_rate);
 }
 
 struct brubeck_metric *

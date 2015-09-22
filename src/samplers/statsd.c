@@ -68,7 +68,7 @@ static void statsd_run_recvmmsg(struct brubeck_statsd *statsd, int sock)
 
 			metric = brubeck_metric_find(server, msg.key, msg.key_len, msg.type);
 			if (metric != NULL)
-				brubeck_metric_record(metric, msg.value);
+				brubeck_metric_record(metric, msg.value, msg.sample_rate);
 		}
 	}
 }
@@ -121,7 +121,7 @@ static void statsd_run_recvmsg(struct brubeck_statsd *statsd, int sock)
 
 		metric = brubeck_metric_find(server, msg.key, msg.key_len, msg.type);
 		if (metric != NULL) {
-			brubeck_metric_record(metric, msg.value);
+			brubeck_metric_record(metric, msg.value, msg.sample_rate);
 		}
 	}
 
@@ -232,6 +232,37 @@ int brubeck_statsd_msg_parse(struct brubeck_statsd_msg *msg, char *buffer, size_
 		}
 	}
 
+	{
+		++buffer;
+
+		if (buffer[0] == '\0' || (buffer[0] == '\n' && buffer[1] == '\0')) {
+			msg->sample_rate = 1.0;
+			return 0;
+		}
+
+		if(*buffer == '@') {
+			++buffer;
+			while (*buffer >= '0' && *buffer <= '9') {
+				msg->sample_rate = (msg->sample_rate * 10.0) + (*buffer - '0');
+				++buffer;
+			}
+
+			if (*buffer == '.') {
+				double f = 0.0, n = 0.0;
+				++buffer;
+
+				while (*buffer >= '0' && *buffer <= '9') {
+					f = (f * 10.0) + (*buffer - '0');
+					++buffer;
+					n += 1.0;
+				}
+
+				msg->sample_rate += f / pow(10.0, n);
+			}
+
+			return 0;
+		}
+	}
 	/**
 	 * Trailing bytes: data appended at the end of the message.
 	 * This is stored verbatim and will be parsed when processing
