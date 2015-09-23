@@ -57,7 +57,7 @@ void test_histogram__single_element(void)
 
 	sput_fail_unless(sample.min == 42.0, 0);
 	sput_fail_unless(sample.max == 42.0, 0);
-	sput_fail_unless(sample.percentile[3] == 42.0, 0);
+	sput_fail_unless(sample.percentile[4] == 42.0, 0);
 	sput_fail_unless(sample.mean == 42.0, 0);
 	sput_fail_unless(sample.count == 1, 0);
 	sput_fail_unless(sample.sum == 42.0, 0);

@@ -66,6 +66,7 @@ void brubeck_histo_sample(
 	sample->count = histo->size;
 
 	sample->percentile[PC_75] = histo_percentile(histo, 0.75f);
+	sample->percentile[PC_90] = histo_percentile(histo, 0.90f);
 	sample->percentile[PC_95] = histo_percentile(histo, 0.95f);
 	sample->percentile[PC_98] = histo_percentile(histo, 0.98f);
 	sample->percentile[PC_99] = histo_percentile(histo, 0.99f);
