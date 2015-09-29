@@ -128,6 +128,7 @@ static void
 counter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opaque)
 {
 	value_t value;
+	char *key;
 
 	pthread_spin_lock(&metric->lock);
 	{
@@ -136,7 +137,18 @@ counter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *o
 	}
 	pthread_spin_unlock(&metric->lock);
 
-	sample(metric->key, value, opaque);
+	key = alloca(metric->key_len + strlen(".count") + 1);
+	memcpy(key, metric->key, metric->key_len);
+
+
+	WITH_SUFFIX(".count") {
+		sample(key, value, opaque);
+	}
+
+	WITH_SUFFIX(".rate") {
+		// TODO(xorlev): sample rate
+		sample(key, value/10, opaque);
+	}
 }
 
 
