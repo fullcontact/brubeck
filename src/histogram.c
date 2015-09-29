@@ -13,7 +13,7 @@ void brubeck_histo_push(struct brubeck_histo *histo, value_t value, float sample
 	}
 
 	histo->values[histo->size++] = value;
-	histo->sampled_size += value/sample_rate;
+	histo->sampled_size += 1/sample_rate;
 }
 
 static inline value_t histo_percentile(struct brubeck_histo *histo, float rank)
