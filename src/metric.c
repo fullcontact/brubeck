@@ -150,7 +150,7 @@ histogram__record(struct brubeck_metric *metric, value_t value, float sample_rat
 {
 	pthread_spin_lock(&metric->lock);
 	{
-		brubeck_histo_push(&metric->as.histogram, value);
+		brubeck_histo_push(&metric->as.histogram, value, sample_rate);
 	}
 	pthread_spin_unlock(&metric->lock);
 }

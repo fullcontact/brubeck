@@ -1,10 +1,12 @@
 #ifndef __BRUBECK_SLAB_H__
 #define __BRUBECK_SLAB_H__
 
-/* Each slab has 32 bytes; 128 slabs per node = 4096 bytes (one page) */
-#define SLAB_SIZE 32
-#define SLABS_PER_NODE 128
-#define NODE_SIZE (SLAB_SIZE * (SLABS_PER_NODE - 1))
+/* Each slab has 40 bytes; 102 slabs per node = 4080 bytes (almost one page) */
+#define SLAB_SIZE 40
+#define SLABS_PER_NODE 102
+
+/*  extra 16 bytes to avoid spanning pages */
+#define NODE_SIZE (SLAB_SIZE * (SLABS_PER_NODE - 1) + 16)
 
 struct brubeck_slab_node {
 	struct brubeck_slab_node *next;

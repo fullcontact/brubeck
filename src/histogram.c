@@ -2,7 +2,7 @@
 
 #define HISTO_INIT_SIZE 16
 
-void brubeck_histo_push(struct brubeck_histo *histo, value_t value)
+void brubeck_histo_push(struct brubeck_histo *histo, value_t value, float sample_rate)
 {
 	if (histo->size == histo->alloc) {
 		histo->alloc *= 2;
@@ -13,6 +13,7 @@ void brubeck_histo_push(struct brubeck_histo *histo, value_t value)
 	}
 
 	histo->values[histo->size++] = value;
+	histo->sampled_size += value/sample_rate;
 }
 
 static inline value_t histo_percentile(struct brubeck_histo *histo, float rank)
@@ -63,7 +64,7 @@ void brubeck_histo_sample(
 	sample->max = histo->values[histo->size - 1];
 	sample->mean = sample->sum / histo->size;
 	sample->median = histo_percentile(histo, 0.5f);
-	sample->count = histo->size;
+	sample->count = histo->sampled_size;
 
 	sample->percentile[PC_75] = histo_percentile(histo, 0.75f);
 	sample->percentile[PC_90] = histo_percentile(histo, 0.90f);
@@ -74,4 +75,5 @@ void brubeck_histo_sample(
 
 	/* empty the histogram */
 	histo->size = 0;
+	histo->sampled_size = 0;
 }
