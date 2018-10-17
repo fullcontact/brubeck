@@ -59,7 +59,7 @@ void test_histogram__single_element(void)
 
 	sput_fail_unless(sample.min == 42.0, "sample.min");
 	sput_fail_unless(sample.max == 42.0, "sample.max");
-	sput_fail_unless(sample.percentile[3] == 42.0, "sample.percentile[3]");
+	sput_fail_unless(sample.percentile[4] == 42.0, "sample.percentile[4]");
 	sput_fail_unless(sample.mean == 42.0, "sample.mean");
 	sput_fail_unless(sample.count == 1, "sample.count");
 	sput_fail_unless(sample.sum == 42.0, "sample.sum");
@@ -102,7 +102,7 @@ void test_histogram__multisamples(void)
 
 		sput_fail_unless(sample.min == 1.0, "sample.min");
 		sput_fail_unless(sample.max == 128.0, "sample.max");
-		sput_fail_unless(sample.percentile[3] == 127.0, "sample.percentile[3]");
+		sput_fail_unless(sample.percentile[4] == 127.0, "sample.percentile[4]");
 		sput_fail_unless(sample.mean == 64.5, "sample.mean");
 		sput_fail_unless(sample.count == 128, "sample.count");
 		sput_fail_unless(sample.sum == 8256.0, "sample.sum");
@@ -127,7 +127,7 @@ void test_histogram__with_sample_rate(void)
 
 	sput_fail_unless(sample.min == 1.0, "sample.min");
 	sput_fail_unless(sample.max == 128.0, "sample.max");
-	sput_fail_unless(sample.percentile[3] == 127.0, "sample.percentile[3]");
+	sput_fail_unless(sample.percentile[4] == 127.0, "sample.percentile[4]");
 	sput_fail_unless(sample.mean == 64.5, "sample.mean");
 	sput_fail_unless(sample.count == 1280, "sample.count");
 	sput_fail_unless(sample.sum == 8256.0, "sample.sum");

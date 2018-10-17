@@ -18,7 +18,7 @@ struct brubeck_histo_sample {
 	value_t percentile[5];
 };
 
-enum { PC_75, PC_95, PC_98, PC_99, PC_999 };
+enum { PC_75, PC_90, PC_95, PC_98, PC_99 };
 
 void brubeck_histo_push(struct brubeck_histo *histo, value_t value, value_t sample_rate);
 void brubeck_histo_sample(
