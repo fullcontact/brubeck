@@ -90,7 +90,6 @@ static void
 meter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opaque)
 {
 	value_t value;
-	char *key;
 
 	pthread_spin_lock(&metric->lock);
 	{
@@ -99,17 +98,8 @@ meter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opa
 	}
 	pthread_spin_unlock(&metric->lock);
 
-	key = alloca(metric->key_len + strlen(".count") + 1);
-	memcpy(key, metric->key, metric->key_len);
-
-	WITH_SUFFIX(".count") {
-		sample(key, value, opaque);
-	}
-
-	WITH_SUFFIX(".rate") {
-		struct brubeck_backend *backend = opaque;
-		sample(key, value / (double)backend->sample_freq, opaque);
-	}
+	struct brubeck_backend *backend = opaque;
+	sample(metric->key, value / (double)backend->sample_freq, opaque);
 }
 
 
@@ -143,7 +133,6 @@ static void
 counter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opaque)
 {
 	value_t value;
-	char *key;
 
 	pthread_spin_lock(&metric->lock);
 	{
@@ -152,17 +141,8 @@ counter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *o
 	}
 	pthread_spin_unlock(&metric->lock);
 
-	key = alloca(metric->key_len + strlen(".count") + 1);
-	memcpy(key, metric->key, metric->key_len);
-
-	WITH_SUFFIX(".count") {
-		sample(key, value, opaque);
-	}
-
-	WITH_SUFFIX(".rate") {
-		struct brubeck_backend *backend = opaque;
-		sample(key, value / (double)backend->sample_freq, opaque);
-	}
+	struct brubeck_backend *backend = opaque;
+	sample(metric->key, value / (double)backend->sample_freq, opaque);
 }
 
 
@@ -196,13 +176,8 @@ histogram__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void 
 	/* alloc space for this on the stack. we need enough for:
 	 * key_length + longest_suffix + null terminator
 	 */
-	key = alloca(metric->key_len + strlen(".percentile.999") + 1);
+	key = alloca(metric->key_len + strlen(".percentile.99") + 1);
 	memcpy(key, metric->key, metric->key_len);
-
-
-	WITH_SUFFIX(".tcount") {
-		sample(key, hsample.count, opaque);
-	}
 
 	WITH_SUFFIX(".trate") {
 		struct brubeck_backend *backend = opaque;
